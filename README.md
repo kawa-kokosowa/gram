@@ -11,10 +11,11 @@ Only works in Python 3 and with SSH (not HTTPS).
 
 ## How to Use
 
-Create a new GitHub account:
+Create a GitHub account:
+Register a GitHub account with gram
 
 ```
-gram register --username slimemaid --key-file ~/.ssh/some-key.pub
+gram register -u lily-mayfield -k ~/.ssh/some-key.pub -n "Lily Mayfield" -e lily.mayfield@gmail.com
 ```
 
 List accounts:
@@ -26,5 +27,5 @@ gram list
 While in a repository root:
 
 ```
-gram assign slimemaid
+gram assign lily-mayfield
 ```

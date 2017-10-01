@@ -1,15 +1,17 @@
 """gram: GitHub Repo Account Manager
 
 Usage:
-    gram register --username <username> --public-key <public-key>
+    gram register -u <username> -k <public-key> -n <full-name> -e <email>
     gram list
-    gram assign <username>   
+    gram assign <username>
 
 Options:
     -h --help       Show this screen.
     --version       Show version.
-    --username      GitHub username to create or assign to a repo.
-    --public-key      Key associated with the GitHub username.
+    -u              GitHub username to create or assign to a repo.
+    -k              Key associated with the GitHub username.
+    -n              Full author's name for commits.
+    -e              Author email for commits.
 
 """
 
@@ -31,14 +33,17 @@ def entrypoint():
         try:
             username = arguments['<username>']
             public_key = arguments['<public-key>']
+            full_name = arguments['<full-name>']
+            email = arguments['<email>']
         except KeyError:
             print(
-                "When defining a new account you must use --username "
-                "and --public-key. See --help for more details."
+                "When defining a new account you must use define username,"
+                " public-key, full-name, and email."
+                " See --help for more details."
             )
             sys.exit(1)
         else:
-            gram.new_user(username, public_key)
+            gram.new_user(username, public_key, full_name, email)
             sys.exit(0)
     elif arguments['list']:
         gram.list_users()
@@ -48,7 +53,7 @@ def entrypoint():
         except KeyError:
             print(
                 "When assigning a username to a repo you must specify "
-                "--username followed by the username registered with gram."
+                "username registered with gram."
             )
             sys.exit(1)
         else:

@@ -21,11 +21,14 @@ def new_ssh_config_host(username: str, public_key: str) -> None:
 
     """
 
-    with open(SSH_CONFIG_PATH) as f:
-        ssh_config_contents = f.read()
-    if 'Host github-%s' % username in ssh_config_contents:
-        print("ERROR: SSH config host for %s already exists." % username)
-        sys.exit(1)
+    try:
+        with open(SSH_CONFIG_PATH) as f:
+            ssh_config_contents = f.read()
+        if 'Host github-%s' % username in ssh_config_contents:
+            print("ERROR: SSH config host for %s already exists." % username)
+            sys.exit(1)
+    except FileNotFoundError:
+        pass
 
     try:
         with open(SSH_CONFIG_PATH, 'a') as f:
@@ -35,13 +38,15 @@ def new_ssh_config_host(username: str, public_key: str) -> None:
         sys.exit(1)
 
 
-def new_user(username: str, public_key: str) -> None:
+def new_user(username: str, public_key: str, full_name: str, email: str) -> None:
     """Add a GitHub user to the gram ini.
 
     The format for a user entry looks like this:
 
-      [someuser]
+      [lily-mayfield]
       public_key = ~/.ssh/somekey
+      full_name = Lily Mayfield
+      email = lily.m.mayfield@gmail.com
 
     Raises:
         SystemExit: Exits with error code 1 if INI cannot
@@ -65,6 +70,8 @@ def new_user(username: str, public_key: str) -> None:
         parser.add_section(username)
         parser.set(username, 'public_key', public_key)
         parser[username]['public_key'] = public_key
+        parser[username]['full_name'] = full_name
+        parser[username]['email'] = email
 
     # Write out the changed config (user added!)
     try:
@@ -86,7 +93,16 @@ def list_users() -> None:
     parser.read(GRAM_ACCOUNTS_INI)
 
     for section in parser.sections():
-        print('%s (%s)' % (section, parser[section]['public_key']))
+        username = section
+        user_info = parser[section]
+        print(
+            '{username} ({full_name}) <{email}>; {public_key}'.format(
+                username=username,
+                full_name=user_info['full_name'],
+                email=user_info['email'],
+                public_key=user_info['public_key'],
+            )
+        )
 
 
 def set_repo_user(username) -> None:
@@ -101,6 +117,8 @@ def set_repo_user(username) -> None:
     if username not in parser:
         print("This username is not registered with gram.")
         sys.exit(1)
+    name = parser[username]['full_name']
+    email = parser[username]['email']
 
     # Read in the config
     parser = configparser.ConfigParser()
@@ -110,6 +128,14 @@ def set_repo_user(username) -> None:
     old_url = parser['remote "origin"']['url']
     new_url = old_url.replace('.com', '-' + username, 1)
     parser.set('remote "origin"', 'url', new_url)
+
+    # Set user info too
+    try:
+        parser.add_section('user')
+    except configparser.DuplicateSectionError as e:
+        pass
+    parser.set('user', 'name', name)
+    parser.set('user', 'email', email)
 
     # Write out!
     try:
