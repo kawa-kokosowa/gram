@@ -11,7 +11,7 @@ Only works in Python 3 and with SSH (not HTTPS).
 
 ## How to Use
 
-Register a GitHub account with gram (populates `~/.gram.ini`:
+Register a GitHub account with gram (populates `~/.gram.ini`):
 
 ```
 gram register -u lily-mayfield -k ~/.ssh/some-key.pub -n "Lily Mayfield" -e lily.mayfield@gmail.com
