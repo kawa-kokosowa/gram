@@ -124,9 +124,16 @@ def set_repo_user(username) -> None:
     parser = configparser.ConfigParser()
     parser.read(GIT_CONFIG)
 
-    # EX: git@github.com:SlimeMaid/slimemaid.github.io.git
+    # Use a custom host that corresponds with the
+    # host specified in SSH config. It may look like this:
+    # url = git@github.com:lily-mayfield/gram.git
+    # Simply replace what's between @ and :.
     old_url = parser['remote "origin"']['url']
-    new_url = old_url.replace('.com', '-' + username, 1)
+    new_url = (
+        old_url[:old_url.index('@') + 1]
+        + "github-" + username +
+        old_url[old_url.index(':'):]
+    )
     parser.set('remote "origin"', 'url', new_url)
 
     # Set user info too
